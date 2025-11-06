@@ -2,25 +2,31 @@ pipeline {
     agent any
 
     stages {
+
         stage('Checkout') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/Dibyasha207/jenkins-health-score.git'
+                echo '📥 Cloning repository...'
+                checkout scm
             }
         }
 
         stage('Build') {
             steps {
-                echo '✅ Building project...'
-                sh 'echo Build Success: 98% > build_report.txt'
+                echo '🏗 Building the project...'
+                // Simulate build steps (you can replace this with real commands)
+                sh 'echo "Build successful!"'
             }
         }
 
         stage('Health Scoring') {
             steps {
-                echo '🧮 Calculating Health Score...'
-                sh 'echo Vulnerabilities Found: 4 >> build_report.txt'
-                sh 'echo Final Score: 78 >> build_report.txt'
+                echo '💡 Running health and security scoring...'
+                sh '''
+                mkdir -p reports
+                echo "Build Health: 95%" > reports/health.txt
+                echo "Security Score: 82%" >> reports/health.txt
+                echo "Overall Rating: Good" >> reports/health.txt
+                '''
             }
         }
 
@@ -29,10 +35,13 @@ pipeline {
                 echo '📝 Generating HTML Report...'
                 sh '''
                 mkdir -p reports
-                echo "<h1>Jenkins Health and Security Score Report</h1>" > reports/index.html
-                echo "<p><b>Build Success:</b> 98%</p>" >> reports/index.html
-                echo "<p><b>Vulnerabilities Found:</b> 4</p>" >> reports/index.html
-                echo "<p><b>Final Score:</b> 78</p>" >> reports/index.html
+                echo "<html><head><title>Jenkins Health Report</title></head><body>" > reports/index.html
+                echo "<h1 style='color:#2E8B57;'>Jenkins Health and Security Score Report</h1>" >> reports/index.html
+                echo "<h3>Build Health: 95%</h3>" >> reports/index.html
+                echo "<h3>Security Score: 82%</h3>" >> reports/index.html
+                echo "<h3>Overall Rating: Good</h3>" >> reports/index.html
+                echo "<p>Generated automatically by Jenkins Pipeline ✅</p>" >> reports/index.html
+                echo "</body></html>" >> reports/index.html
                 '''
             }
         }
@@ -40,10 +49,18 @@ pipeline {
 
     post {
         success {
-            echo "✅ Pipeline completed successfully!"
+            echo '✅ Pipeline completed successfully!'
+
+            // Publish HTML report inside Jenkins UI
+            publishHTML(target: [
+                reportDir: 'reports',
+                reportFiles: 'index.html',
+                reportName: 'Health and Security Report'
+            ])
         }
+
         failure {
-            echo "❌ Pipeline failed."
+            echo '❌ Pipeline failed. Please check error logs.'
         }
     }
 }
