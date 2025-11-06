@@ -1,0 +1,1 @@
+print("Starting Jenkins Health & Security Score Analysis...")
